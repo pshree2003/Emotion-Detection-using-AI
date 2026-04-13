@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emotion Detection AI</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --surface: #fff9f0;
+        --ink: #1f1b16;
+        --muted: #695f52;
+        --accent: #cc5a2e;
+        --accent-soft: #ffd7b8;
+        --ok: #2b7a43;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 20% 10%, #fff8ec, #f4efe6 45%, #ebe2d5 100%);
+        min-height: 100vh;
+      }
+
+      .shell {
+        width: min(1100px, 92vw);
+        margin: 2rem auto 3rem;
+      }
+
+      .hero {
+        border: 2px solid #d8c7b0;
+        background: linear-gradient(135deg, #fff8ec, #fce8d6);
+        border-radius: 18px;
+        padding: 1.4rem 1.2rem;
+        animation: reveal 500ms ease;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(1.7rem, 2.5vw, 2.4rem);
+      }
+
+      .hero p {
+        margin: 0.6rem 0 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .grid {
+        margin-top: 1rem;
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+
+      .card {
+        background: var(--surface);
+        border-radius: 14px;
+        border: 1px solid #e3d3bd;
+        padding: 1rem;
+        box-shadow: 0 6px 20px rgba(79, 50, 14, 0.08);
+      }
+
+      .full-span {
+        grid-column: 1 / -1;
+      }
+
+      .mt-6 {
+        margin-top: 0.6rem;
+      }
+
+      .card h2 {
+        margin-top: 0;
+        font-size: 1.05rem;
+      }
+
+      label {
+        display: block;
+        font-size: 0.88rem;
+        margin-bottom: 0.4rem;
+        color: var(--muted);
+      }
+
+      textarea,
+      input,
+      button {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #d7c7af;
+        padding: 0.65rem 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      textarea {
+        min-height: 110px;
+        resize: vertical;
+      }
+
+      button {
+        border: none;
+        margin-top: 0.8rem;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:hover {
+        filter: brightness(1.05);
+      }
+
+      .result {
+        margin-top: 0.8rem;
+        background: #fff;
+        border: 1px solid #ead8c0;
+        border-radius: 10px;
+        padding: 0.7rem;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+      }
+
+      .pill {
+        display: inline-block;
+        background: var(--accent-soft);
+        color: #6a3016;
+        border-radius: 999px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+        margin-top: 0.6rem;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <h1>Emotion Detection AI</h1>
+        <p>
+          Analyze emotions from text, speech, and facial expressions using NLP and ML-based pipelines.
+          This demo supports customer service analytics, healthcare well-being signals, and social media sentiment workflows.
+        </p>
+        <span class="pill">Multimodal Fusion Enabled</span>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Text Emotion</h2>
+          <label for="text-input">Input Text</label>
+          <textarea id="text-input" placeholder="Type a customer message or social post"></textarea>
+          <button onclick="runText()">Analyze Text</button>
+          <div id="text-result" class="result">Waiting for input...</div>
+        </article>
+
+        <article class="card">
+          <h2>Speech Emotion</h2>
+          <label for="audio-input">Upload WAV/Audio</label>
+          <input id="audio-input" type="file" accept="audio/*" />
+          <button onclick="runSpeech()">Analyze Speech</button>
+          <div id="speech-result" class="result">No audio analyzed yet.</div>
+        </article>
+
+        <article class="card">
+          <h2>Facial Emotion</h2>
+          <label for="image-input">Upload Face Image</label>
+          <input id="image-input" type="file" accept="image/*" />
+          <button onclick="runFacial()">Analyze Face</button>
+          <div id="facial-result" class="result">No image analyzed yet.</div>
+        </article>
+
+        <article class="card full-span">
+          <h2>Multimodal Fusion</h2>
+          <label for="mm-text">Optional Text</label>
+          <textarea id="mm-text" placeholder="Combine with optional audio and image for stronger signals"></textarea>
+          <label class="mt-6" for="mm-audio">Optional Audio</label>
+          <input id="mm-audio" type="file" accept="audio/*" />
+          <label class="mt-6" for="mm-image">Optional Image</label>
+          <input id="mm-image" type="file" accept="image/*" />
+          <button onclick="runFusion()">Analyze Multimodal</button>
+          <div id="mm-result" class="result">No multimodal request yet.</div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const format = (obj) => JSON.stringify(obj, null, 2);
+
+      async function runText() {
+        const text = document.getElementById("text-input").value;
+        const res = await fetch("/analyze/text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+        document.getElementById("text-result").textContent = format(await res.json());
+      }
+
+      async function runSpeech() {
+        const file = document.getElementById("audio-input").files[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append("audio", file);
+        const res = await fetch("/analyze/speech", { method: "POST", body: form });
+        document.getElementById("speech-result").textContent = format(await res.json());
+      }
+
+      async function runFacial() {
+        const file = document.getElementById("image-input").files[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append("image", file);
+        const res = await fetch("/analyze/facial", { method: "POST", body: form });
+        document.getElementById("facial-result").textContent = format(await res.json());
+      }
+
+      async function runFusion() {
+        const text = document.getElementById("mm-text").value;
+        const audio = document.getElementById("mm-audio").files[0];
+        const image = document.getElementById("mm-image").files[0];
+
+        const form = new FormData();
+        if (text) form.append("text", text);
+        if (audio) form.append("audio", audio);
+        if (image) form.append("image", image);
+
+        const res = await fetch("/analyze/multimodal", { method: "POST", body: form });
+        document.getElementById("mm-result").textContent = format(await res.json());
+      }
+    </script>
+  </body>
+</html>
