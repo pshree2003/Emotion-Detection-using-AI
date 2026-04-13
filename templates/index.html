@@ -4,227 +4,413 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Emotion Detection AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        --bg: #f4efe6;
-        --surface: #fff9f0;
-        --ink: #1f1b16;
-        --muted: #695f52;
-        --accent: #cc5a2e;
-        --accent-soft: #ffd7b8;
-        --ok: #2b7a43;
+        --bg-top: #f7efe3;
+        --bg-mid: #efe5d8;
+        --bg-bottom: #e7dbc9;
+        --panel: rgba(255, 249, 241, 0.84);
+        --panel-strong: #fffaf2;
+        --ink: #1d1a17;
+        --muted: #655a4e;
+        --line: #dac8b0;
+        --brand: #b9471f;
+        --accent: #1f7f69;
+        --danger: #9c3d3d;
+        --shadow: 0 10px 35px rgba(80, 55, 22, 0.13);
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       body {
         margin: 0;
-        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-        color: var(--ink);
-        background: radial-gradient(circle at 20% 10%, #fff8ec, #f4efe6 45%, #ebe2d5 100%);
         min-height: 100vh;
+        color: var(--ink);
+        font-family: "DM Sans", sans-serif;
+        background: linear-gradient(180deg, var(--bg-top), var(--bg-mid) 48%, var(--bg-bottom));
+        overflow-x: hidden;
       }
 
-      .shell {
-        width: min(1100px, 92vw);
-        margin: 2rem auto 3rem;
+      .ambient { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(45px);
+        opacity: 0.6;
+        animation: drift 15s ease-in-out infinite alternate;
       }
+
+      .blob.one { width: 300px; height: 300px; background: #ffdcbf; left: -40px; top: 40px; }
+      .blob.two { width: 380px; height: 380px; background: #cdece3; right: -120px; top: 160px; animation-delay: 0.7s; }
+      .blob.three { width: 320px; height: 320px; background: #f4cfcc; left: 30%; bottom: -120px; animation-delay: 1.2s; }
+
+      .container { width: min(1220px, 94vw); margin: 1.5rem auto 2.8rem; }
 
       .hero {
-        border: 2px solid #d8c7b0;
-        background: linear-gradient(135deg, #fff8ec, #fce8d6);
-        border-radius: 18px;
-        padding: 1.4rem 1.2rem;
-        animation: reveal 500ms ease;
+        border: 2px solid var(--line);
+        border-radius: 24px;
+        padding: 1.2rem;
+        background: linear-gradient(145deg, #fff9f0 15%, #ffeeda 90%);
+        box-shadow: var(--shadow);
+        animation: rise 500ms ease both;
       }
 
-      .hero h1 {
-        margin: 0;
-        font-size: clamp(1.7rem, 2.5vw, 2.4rem);
-      }
-
-      .hero p {
-        margin: 0.6rem 0 0;
-        color: var(--muted);
-        line-height: 1.45;
-      }
-
-      .grid {
-        margin-top: 1rem;
-        display: grid;
+      .hero-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        flex-wrap: wrap;
       }
+
+      .title {
+        margin: 0;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(2.3rem, 6vw, 4.5rem);
+        line-height: 0.95;
+        letter-spacing: 0.03em;
+      }
+
+      .subtitle { margin: 0.4rem 0 0; max-width: 850px; color: var(--muted); font-size: 1rem; line-height: 1.45; }
+
+      .status-stack { display: grid; gap: 0.5rem; }
+
+      .chip {
+        border: 1px solid #d4bfa7;
+        background: rgba(255, 251, 244, 0.9);
+        color: #5d4737;
+        border-radius: 999px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        width: fit-content;
+      }
+
+      .layout { margin-top: 1rem; display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+      .left-col, .right-col { display: grid; gap: 1rem; }
 
       .card {
-        background: var(--surface);
-        border-radius: 14px;
-        border: 1px solid #e3d3bd;
+        background: var(--panel);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
         padding: 1rem;
-        box-shadow: 0 6px 20px rgba(79, 50, 14, 0.08);
+        animation: rise 580ms ease both;
       }
 
-      .full-span {
-        grid-column: 1 / -1;
-      }
+      .card h2 { margin: 0; font-size: 1.15rem; }
+      .meta { margin-top: 0.3rem; color: var(--muted); font-size: 0.9rem; }
 
-      .mt-6 {
-        margin-top: 0.6rem;
-      }
+      .card-grid { margin-top: 0.85rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
 
-      .card h2 {
-        margin-top: 0;
-        font-size: 1.05rem;
-      }
+      .modality { border: 1px solid #dbcbb8; border-radius: 14px; padding: 0.85rem; background: var(--panel-strong); }
+      .modality h3 { margin: 0; font-size: 1rem; }
+      .full-width { grid-column: 1 / -1; }
+      .tight-top { margin-top: 0.5rem; }
 
       label {
         display: block;
-        font-size: 0.88rem;
-        margin-bottom: 0.4rem;
-        color: var(--muted);
-      }
-
-      textarea,
-      input,
-      button {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid #d7c7af;
-        padding: 0.65rem 0.75rem;
-        font-size: 0.95rem;
-      }
-
-      textarea {
-        min-height: 110px;
-        resize: vertical;
-      }
-
-      button {
-        border: none;
-        margin-top: 0.8rem;
-        background: var(--accent);
-        color: white;
+        margin-top: 0.7rem;
+        margin-bottom: 0.35rem;
+        color: #5e5448;
+        font-size: 0.84rem;
         font-weight: 600;
-        cursor: pointer;
       }
 
-      button:hover {
-        filter: brightness(1.05);
-      }
-
-      .result {
-        margin-top: 0.8rem;
-        background: #fff;
-        border: 1px solid #ead8c0;
+      textarea, input[type="file"] {
+        width: 100%;
+        border: 1px solid #d4bea4;
         border-radius: 10px;
+        background: #fffefb;
+        color: var(--ink);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.94rem;
+      }
+
+      textarea { min-height: 108px; padding: 0.7rem; resize: vertical; }
+      input[type="file"] { padding: 0.56rem; }
+
+      .btn {
+        margin-top: 0.75rem;
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 140ms ease, filter 140ms ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+      .btn:active { transform: translateY(0); }
+      .btn.brand { background: linear-gradient(90deg, #bc4e25, #d96f3a); color: #fff; }
+      .btn.accent { background: linear-gradient(90deg, #0f6d59, #2a947a); color: #f6fffc; }
+      .btn.neutral { background: #f0e6d8; color: #584f45; }
+
+      .result-block {
+        margin-top: 0.75rem;
+        border: 1px solid #dccdb9;
+        border-radius: 12px;
+        background: #fffdf9;
         padding: 0.7rem;
-        font-size: 0.85rem;
+      }
+
+      .result-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+      .result-emotion { font-size: 0.98rem; font-weight: 700; }
+      .result-score { font-size: 0.8rem; font-weight: 700; color: #654f3f; }
+
+      .bar { margin-top: 0.45rem; height: 8px; border-radius: 999px; background: #f2e6d8; overflow: hidden; }
+      .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #d57648); width: 0; transition: width 360ms ease; }
+
+      .raw {
+        margin-top: 0.55rem;
+        max-height: 180px;
+        overflow: auto;
+        border: 1px dashed #d9c6ab;
+        border-radius: 8px;
+        padding: 0.55rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        line-height: 1.45;
         white-space: pre-wrap;
+        color: #54473a;
+        background: #fffcf7;
       }
 
-      .pill {
-        display: inline-block;
-        background: var(--accent-soft);
-        color: #6a3016;
-        border-radius: 999px;
-        padding: 0.2rem 0.6rem;
-        font-size: 0.8rem;
-        margin-top: 0.6rem;
+      .activity { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+      .activity li { border: 1px solid #d9c7b0; border-radius: 10px; padding: 0.58rem 0.62rem; background: #fff8ef; font-size: 0.85rem; line-height: 1.3; }
+
+      .note { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+      .muted { color: #7a6754; }
+      .error { color: var(--danger); }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
-      @keyframes reveal {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      @keyframes drift {
+        from { transform: translateY(-8px) translateX(-10px) scale(1); }
+        to { transform: translateY(10px) translateX(14px) scale(1.08); }
+      }
+
+      @media (max-width: 1020px) { .layout { grid-template-columns: 1fr; } }
+
+      @media (max-width: 760px) {
+        .container { width: min(95vw, 700px); }
+        .card-grid { grid-template-columns: 1fr; }
+        .hero { padding: 1rem; border-radius: 18px; }
       }
     </style>
   </head>
   <body>
-    <main class="shell">
+    <div class="ambient" aria-hidden="true">
+      <span class="blob one"></span>
+      <span class="blob two"></span>
+      <span class="blob three"></span>
+    </div>
+
+    <main class="container">
       <section class="hero">
-        <h1>Emotion Detection AI</h1>
-        <p>
-          Analyze emotions from text, speech, and facial expressions using NLP and ML-based pipelines.
-          This demo supports customer service analytics, healthcare well-being signals, and social media sentiment workflows.
-        </p>
-        <span class="pill">Multimodal Fusion Enabled</span>
+        <div class="hero-top">
+          <div>
+            <h1 class="title">Emotion Radar Console</h1>
+            <p class="subtitle">
+              Run text, speech, and facial emotion analysis in one place. Each request shows top emotion,
+              confidence score, and raw JSON so you can validate model behavior quickly.
+            </p>
+          </div>
+          <div class="status-stack">
+            <span class="chip">FastAPI + Fusion</span>
+            <span class="chip">Live Multimodal Lab</span>
+          </div>
+        </div>
       </section>
 
-      <section class="grid">
-        <article class="card">
-          <h2>Text Emotion</h2>
-          <label for="text-input">Input Text</label>
-          <textarea id="text-input" placeholder="Type a customer message or social post"></textarea>
-          <button onclick="runText()">Analyze Text</button>
-          <div id="text-result" class="result">Waiting for input...</div>
-        </article>
+      <section class="layout">
+        <div class="left-col">
+          <article class="card">
+            <h2>Single-Modality Analysis</h2>
+            <p class="meta">Use each analyzer independently to compare signals.</p>
 
-        <article class="card">
-          <h2>Speech Emotion</h2>
-          <label for="audio-input">Upload WAV/Audio</label>
-          <input id="audio-input" type="file" accept="audio/*" />
-          <button onclick="runSpeech()">Analyze Speech</button>
-          <div id="speech-result" class="result">No audio analyzed yet.</div>
-        </article>
+            <div class="card-grid">
+              <section class="modality">
+                <h3>Text</h3>
+                <label for="text-input">Message or sentence</label>
+                <textarea id="text-input" placeholder="Example: I am feeling joyful and hopeful today."></textarea>
+                <button class="btn brand" onclick="runText()">Analyze Text</button>
+                <div id="text-result" class="result-block">Waiting for text input.</div>
+              </section>
 
-        <article class="card">
-          <h2>Facial Emotion</h2>
-          <label for="image-input">Upload Face Image</label>
-          <input id="image-input" type="file" accept="image/*" />
-          <button onclick="runFacial()">Analyze Face</button>
-          <div id="facial-result" class="result">No image analyzed yet.</div>
-        </article>
+              <section class="modality">
+                <h3>Speech</h3>
+                <label for="audio-input">Upload audio file</label>
+                <input id="audio-input" type="file" accept="audio/*" />
+                <button class="btn accent" onclick="runSpeech()">Analyze Speech</button>
+                <div id="speech-result" class="result-block">No audio analyzed yet.</div>
+              </section>
 
-        <article class="card full-span">
-          <h2>Multimodal Fusion</h2>
-          <label for="mm-text">Optional Text</label>
-          <textarea id="mm-text" placeholder="Combine with optional audio and image for stronger signals"></textarea>
-          <label class="mt-6" for="mm-audio">Optional Audio</label>
-          <input id="mm-audio" type="file" accept="audio/*" />
-          <label class="mt-6" for="mm-image">Optional Image</label>
-          <input id="mm-image" type="file" accept="image/*" />
-          <button onclick="runFusion()">Analyze Multimodal</button>
-          <div id="mm-result" class="result">No multimodal request yet.</div>
-        </article>
+              <section class="modality full-width">
+                <h3>Facial</h3>
+                <label for="image-input">Upload face image</label>
+                <input id="image-input" type="file" accept="image/*" />
+                <button class="btn neutral" onclick="runFacial()">Analyze Facial Emotion</button>
+                <div id="facial-result" class="result-block">No image analyzed yet.</div>
+              </section>
+            </div>
+          </article>
+
+          <article class="card">
+            <h2>Multimodal Fusion</h2>
+            <p class="meta">Combine any available modalities for weighted late-fusion output.</p>
+
+            <label for="mm-text">Optional text</label>
+            <textarea id="mm-text" placeholder="Add text context for fusion..."></textarea>
+
+            <div class="card-grid tight-top">
+              <section class="modality">
+                <h3>Audio Signal</h3>
+                <label for="mm-audio">Optional audio file</label>
+                <input id="mm-audio" type="file" accept="audio/*" />
+              </section>
+              <section class="modality">
+                <h3>Facial Signal</h3>
+                <label for="mm-image">Optional image file</label>
+                <input id="mm-image" type="file" accept="image/*" />
+              </section>
+            </div>
+
+            <button class="btn brand" onclick="runFusion()">Analyze Multimodal</button>
+            <div id="mm-result" class="result-block">No multimodal request yet.</div>
+          </article>
+        </div>
+
+        <aside class="right-col">
+          <article class="card">
+            <h2>Session Activity</h2>
+            <p class="meta">Latest events from this browser session.</p>
+            <ul class="activity" id="activity-log">
+              <li class="muted">No requests yet.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h2>Usage Notes</h2>
+            <p class="note">Text endpoint can run in transformer or fallback mode. Check metadata.engine in the raw JSON.</p>
+            <p class="note">For speech and facial analysis, upload clear files for more stable confidence values.</p>
+            <p class="note">Multimodal fusion accepts one or more inputs and normalizes source weights automatically.</p>
+          </article>
+        </aside>
       </section>
     </main>
 
     <script>
       const format = (obj) => JSON.stringify(obj, null, 2);
 
+      function pushLog(message) {
+        const log = document.getElementById("activity-log");
+        const empty = log.querySelector(".muted");
+        if (empty) empty.remove();
+
+        const item = document.createElement("li");
+        const stamp = new Date().toLocaleTimeString();
+        item.textContent = `[${stamp}] ${message}`;
+        log.prepend(item);
+
+        while (log.children.length > 6) {
+          log.removeChild(log.lastChild);
+        }
+      }
+
+      function confidencePercent(confidence) {
+        if (typeof confidence !== "number") return "N/A";
+        return `${Math.round(confidence * 100)}%`;
+      }
+
+      function renderResponse(targetId, payload, contextLabel) {
+        const target = document.getElementById(targetId);
+
+        if (payload && payload.detail) {
+          target.innerHTML = `<div class="result-emotion error">Request failed</div><div class="raw">${format(payload.detail)}</div>`;
+          pushLog(`${contextLabel}: request failed.`);
+          return;
+        }
+
+        if (!payload || !payload.top_emotion) {
+          target.innerHTML = `<div class="result-emotion error">Unexpected response format</div><div class="raw">${format(payload)}</div>`;
+          pushLog(`${contextLabel}: unexpected response format.`);
+          return;
+        }
+
+        const pct = confidencePercent(payload.confidence);
+        const width = typeof payload.confidence === "number" ? Math.max(0, Math.min(100, Math.round(payload.confidence * 100))) : 0;
+
+        target.innerHTML = `
+          <div class="result-head">
+            <span class="result-emotion">Top emotion: ${payload.top_emotion}</span>
+            <span class="result-score">${pct}</span>
+          </div>
+          <div class="bar"><span style="width: ${width}%;"></span></div>
+          <div class="raw">${format(payload)}</div>
+        `;
+        pushLog(`${contextLabel}: ${payload.top_emotion} (${pct}).`);
+      }
+
+      async function readJsonResponse(res) {
+        const payload = await res.json();
+        return res.ok ? payload : { detail: payload };
+      }
+
       async function runText() {
         const text = document.getElementById("text-input").value;
+        if (!text.trim()) {
+          renderResponse("text-result", { detail: { message: "Please enter text before analyzing." } }, "Text");
+          return;
+        }
+
         const res = await fetch("/analyze/text", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text })
         });
-        document.getElementById("text-result").textContent = format(await res.json());
+        renderResponse("text-result", await readJsonResponse(res), "Text");
       }
 
       async function runSpeech() {
         const file = document.getElementById("audio-input").files[0];
-        if (!file) return;
+        if (!file) {
+          renderResponse("speech-result", { detail: { message: "Please upload an audio file first." } }, "Speech");
+          return;
+        }
+
         const form = new FormData();
         form.append("audio", file);
         const res = await fetch("/analyze/speech", { method: "POST", body: form });
-        document.getElementById("speech-result").textContent = format(await res.json());
+        renderResponse("speech-result", await readJsonResponse(res), "Speech");
       }
 
       async function runFacial() {
         const file = document.getElementById("image-input").files[0];
-        if (!file) return;
+        if (!file) {
+          renderResponse("facial-result", { detail: { message: "Please upload an image file first." } }, "Facial");
+          return;
+        }
+
         const form = new FormData();
         form.append("image", file);
         const res = await fetch("/analyze/facial", { method: "POST", body: form });
-        document.getElementById("facial-result").textContent = format(await res.json());
+        renderResponse("facial-result", await readJsonResponse(res), "Facial");
       }
 
       async function runFusion() {
@@ -232,13 +418,22 @@
         const audio = document.getElementById("mm-audio").files[0];
         const image = document.getElementById("mm-image").files[0];
 
+        if (!text.trim() && !audio && !image) {
+          renderResponse(
+            "mm-result",
+            { detail: { message: "Provide at least one modality: text, audio, or image." } },
+            "Fusion"
+          );
+          return;
+        }
+
         const form = new FormData();
-        if (text) form.append("text", text);
+        if (text.trim()) form.append("text", text);
         if (audio) form.append("audio", audio);
         if (image) form.append("image", image);
 
         const res = await fetch("/analyze/multimodal", { method: "POST", body: form });
-        document.getElementById("mm-result").textContent = format(await res.json());
+        renderResponse("mm-result", await readJsonResponse(res), "Fusion");
       }
     </script>
   </body>

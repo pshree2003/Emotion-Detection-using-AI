@@ -72,7 +72,10 @@ async def analyze_text(payload: TextEmotionRequest):
     return _to_emotion_response(
         modality="text",
         predictions=predictions,
-        metadata={"input_length": str(len(payload.text))},
+        metadata={
+            "input_length": str(len(payload.text)),
+            "engine": "transformer" if text_analyzer.model_loaded else "fallback_rules",
+        },
     )
 
 
@@ -113,7 +116,10 @@ async def analyze_multimodal(
         results["text"] = _to_emotion_response(
             modality="text",
             predictions=text_preds,
-            metadata={"input_length": str(len(text))},
+            metadata={
+                "input_length": str(len(text)),
+                "engine": "transformer" if text_analyzer.model_loaded else "fallback_rules",
+            },
         )
 
     if audio is not None:

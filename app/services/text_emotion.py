@@ -16,10 +16,14 @@ class TextEmotionAnalyzer:
     }
 
     POSITIVE_WORDS = {
-        "great", "excellent", "good", "love", "happy", "relaxed", "amazing", "wonderful"
+        "great", "excellent", "good", "love", "happy", "relaxed", "amazing", "wonderful",
+        "awesome", "fantastic", "pleased", "delighted", "grateful", "hopeful", "confident",
+        "excited", "calm", "satisfied", "thankful", "blessed", "content", "enjoy"
     }
     NEGATIVE_WORDS = {
-        "sad", "bad", "terrible", "angry", "upset", "depressed", "worried", "anxious"
+        "sad", "bad", "terrible", "angry", "upset", "depressed", "worried", "anxious",
+        "frustrated", "annoyed", "disappointed", "afraid", "scared", "nervous", "stressed",
+        "hurt", "hate", "tired", "lonely", "fear", "panic", "cry"
     }
 
     def __init__(self) -> None:
@@ -40,6 +44,10 @@ class TextEmotionAnalyzer:
         except Exception:
             self._pipeline = None
 
+    @property
+    def model_loaded(self) -> bool:
+        return self._pipeline is not None
+
     def _normalize_label(self, label: str) -> str:
         lowered = label.lower()
         for canonical, aliases in self.LABEL_MAP.items():
@@ -53,6 +61,22 @@ class TextEmotionAnalyzer:
         neg_hits = sum(1 for t in tokens if t in self.NEGATIVE_WORDS)
 
         if pos_hits == 0 and neg_hits == 0:
+            exclamations = text.count("!")
+            question_marks = text.count("?")
+            if exclamations > 1:
+                return {
+                    "joy": 0.45,
+                    "surprise": 0.25,
+                    "neutral": 0.2,
+                    "anger": 0.1,
+                }
+            if question_marks > 1:
+                return {
+                    "fear": 0.35,
+                    "surprise": 0.25,
+                    "neutral": 0.3,
+                    "sadness": 0.1,
+                }
             return {
                 "neutral": 0.6,
                 "joy": 0.2,
