@@ -43,3 +43,4 @@ class FacialEmotionAnalyzer:
                 {"label": "sadness", "score": 0.15},
                 {"label": "anger", "score": 0.15},
             ]
+
